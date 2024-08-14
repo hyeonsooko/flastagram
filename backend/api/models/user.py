@@ -1,5 +1,13 @@
 from ..db import db
 
+followers = db.Table(
+        'followers',
+        # 내가 팔로우하는 사람들의 id 
+        db.Column('follower_id', db.Integer, db.ForeignKey('User.id', ondelete='CASCADE'), primary_key=True),
+        # 내가 팔로우한 사람들의 id
+        db.Column('followed_id', db.Integer, db.ForeignKey('User.id', ondelete='CASCADE'), primary_key=True)
+    )
+
 class UserModel(db.Model):
     __tablename__ = "User"
     
@@ -9,15 +17,9 @@ class UserModel(db.Model):
     email = db.Column(db.String(80), nullable=False, unique=True)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now())
-    followers = db.Table(
-        'followers',
-        # 내가 팔로우하는 사람들의 id 
-        db.Column('follower_id', db.Integer, db.ForeignKey('User.id', ondelete='CASCADE'), primary_key=True),
-        # 내가 팔로우한 사람들의 id
-        db.Column('followed_id', db.Integer, db.ForeignKey('User.id', ondelete='CASCADE'), primary_key=True)
-    )
+    
     followed = db.relationship(
-        'User',
+        'UserModel',
         secondary=followers,
         primaryjoin=(followers.c.follower_id==id),
         secondaryjoin=(followers.c.followed_id==id),
@@ -44,7 +46,7 @@ class UserModel(db.Model):
     
     @classmethod
     def find_by_id(cls, id):
-        return cls.query.filter_by(id=_id).first()
+        return cls.query.filter_by(id=id).first()
     
     def save_to_db(self):
         db.session.add(self)
@@ -53,3 +55,6 @@ class UserModel(db.Model):
     def delete_from_db(self):
         db.session.delete(self)
         db.session.commit()
+        
+    def __repr__(self):
+        return f'<User Object : {self.username}>'
