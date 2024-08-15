@@ -16,7 +16,7 @@ from .ma import ma
 from .models import user, post, comment
 
 from .resources.post import Post, PostList
-from .resources.user import UserRegister
+from .resources.user import UserRegister, UserLogin
 
 def create_app():
     app = Flask(__name__)
@@ -51,5 +51,6 @@ def create_app():
     api.add_resource(PostList, "/posts/")
     api.add_resource(Post, "/posts/<int:id>")
     api.add_resource(UserRegister, "/register/")
+    api.add_resource(UserLogin, "/login/")
     
     return app
