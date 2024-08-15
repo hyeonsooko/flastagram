@@ -16,6 +16,7 @@ from .ma import ma
 from .models import user, post, comment
 
 from .resources.post import Post, PostList
+from .resources.user import UserRegister
 
 def create_app():
     app = Flask(__name__)
@@ -46,7 +47,9 @@ def create_app():
     def handle_marshmallow_validation(err):
         return jsonify(err.messages), 400
 
+    # resources
     api.add_resource(PostList, "/posts/")
     api.add_resource(Post, "/posts/<int:id>")
+    api.add_resource(UserRegister, "/register/")
     
     return app
