@@ -1,6 +1,8 @@
 from flask_restful import Resource, request
 from api.models.post import PostModel
 from api.schemas.post import PostSchema
+from flask_jwt_extended import jwt_required
+from marshmallow import ValidationError
 
 post_schema = PostSchema()
 post_list_schema = PostSchema(many=True)
@@ -14,21 +16,27 @@ class Post(Resource):
         return {"Error": "could not find the post."}, 404
     
     @classmethod
+    @jwt_required()
     def put(cls, id):
         post_json = request.get_json()
         post = PostModel.find_by_id(id)
-        
+        # if post exists, update
         if post:
             post.title = post_json["title"]
             post.content = post_json["content"]
-            
+        # if post does not exist, create new post
         else:
             try:
                 post = post_schema.load(post_json)
             except ValidationError as err:
                 return err.messages, 400
+        
+        post.save_to_db()
+        
+        return post_schema.dump(post), 200
     
     @classmethod
+    @jwt_required()
     def delete(cls, id):
         post = PostModel.find_by_id(id)
         if post:
@@ -46,6 +54,7 @@ class PostList(Resource):
         return result
         
     @classmethod
+    @jwt_required()
     def post(cls):
         post_json = request.get_json()
         try:
