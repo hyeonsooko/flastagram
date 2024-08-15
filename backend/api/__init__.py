@@ -25,6 +25,7 @@ def create_app():
     app.config.from_object("config.dev")
     app.config.from_envvar("APPLICATION_SETTINGS")
     app.config.update(RESTFUL_JSON=dict(ensure_ascii=False))
+    app.config["JSON_AS_ASCII"] = False
     api = Api(app)
     
     # 추가!
@@ -52,5 +53,26 @@ def create_app():
     api.add_resource(Post, "/posts/<int:id>")
     api.add_resource(UserRegister, "/register/")
     api.add_resource(UserLogin, "/login/")
+    
+    @jwt.expired_token_loader
+    def expired_token_callback(jwt_header, jwt_payload):
+        return (
+            jsonify({"Error": "Token is expired"}),
+            401,
+        )
+        
+    @jwt.invalid_token_loader
+    def invalid_token_callback(error):
+        return (
+            jsonify({"Error", "Invalid Token"}),
+            401,
+        )
+        
+    @jwt.unauthorized_loader
+    def missing_token_callback(error):
+        return (
+            jsonify({"Error": "Unauthorized Token"}),
+            401,
+        )
     
     return app
