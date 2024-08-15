@@ -1,4 +1,4 @@
-from api.models.user import UserModel
+from api.models.user import UserModel, RefreshTokenModel
 from flask_restful import Resource, request
 from werkzeug.security import generate_password_hash
 from flask_jwt_extended import (
@@ -47,6 +47,42 @@ class UserLogin(MethodView):
         if user and check_password_hash(user.password, data["password"]):
             access_token = create_access_token(identity=user.username, fresh=True)
             refresh_token = create_refresh_token(identity=user.username)
+            # if refresh token exists for username, update, otherwise save
+            if user.token:
+                token = user.token[0]
+                token.refresh_token_value = refresh_token
+                token.save_to_db()
+            else:
+                new_token = RefreshTokenModel(user_id=user.id, refresh_token_value=refresh_token)
+                new_token.save_to_db()
             return {"access_token": access_token, "refresh_token": refresh_token}, 200
         
         return {"Unauthorized": "Check your email and password"}, 401
+    
+class RefreshToken(MethodView):
+    """
+    Receive Refresh Token and verify
+    New Refresh Token and Access Token
+    Since Refresh Token is one-time only, when new refresh token is received,
+    save its value in db
+    """
+    @jwt_required(refresh=True)
+    def post(self):
+        """
+        assume refresh token is verified,
+        if user's existing refresh token is different than post refresh token,
+        access token must be failed
+        """
+        identity = get_jwt_identity()
+        token = dict(request.headers)["Authorization"][7:]
+        user = RefreshTokenModel.get_user_by_token(token)
+        if not user:
+            return {"Unauthorized": "Refresh token cannot be used more than twice"}, 401
+        # access token, refresh token
+        access_token = create_access_token(identity=identity)
+        refresh_token = create_refresh_token(identity=user.username)
+        if user:
+            token = user.token[0]
+            token.refresh_token_value = refresh_token
+            token.save_to_db()
+            return {"access_token": access_token, "refresh_token": refresh_token}, 200
