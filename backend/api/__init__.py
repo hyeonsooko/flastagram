@@ -2,6 +2,7 @@
 from flask import Flask, jsonify
 from flask_restful import Api
 from dotenv import load_dotenv
+from datetime import timedelta
 
 # 추가!
 from flask_jwt_extended import JWTManager
@@ -16,7 +17,7 @@ from .ma import ma
 from .models import user, post, comment
 
 from .resources.post import Post, PostList
-from .resources.user import UserRegister, UserLogin
+from .resources.user import UserRegister, UserLogin, RefreshToken
 
 def create_app():
     app = Flask(__name__)
@@ -26,6 +27,8 @@ def create_app():
     app.config.from_envvar("APPLICATION_SETTINGS")
     app.config.update(RESTFUL_JSON=dict(ensure_ascii=False))
     app.config["JSON_AS_ASCII"] = False
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=1)
+    app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=30)    
     api = Api(app)
     
     # 추가!
@@ -53,6 +56,7 @@ def create_app():
     api.add_resource(Post, "/posts/<int:id>")
     api.add_resource(UserRegister, "/register/")
     api.add_resource(UserLogin, "/login/")
+    api.add_resource(RefreshToken, "/refresh/")
     
     @jwt.expired_token_loader
     def expired_token_callback(jwt_header, jwt_payload):
