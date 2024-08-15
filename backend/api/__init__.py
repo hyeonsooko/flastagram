@@ -8,6 +8,8 @@ from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 from marshmallow import ValidationError
 
+from flask_cors import CORS
+
 # 추가!
 from .db import db
 from .ma import ma
@@ -17,6 +19,7 @@ from .resources.post import Post, PostList
 
 def create_app():
     app = Flask(__name__)
+    CORS(app, resources={r"*": {"origins": "*"}})
     load_dotenv(".env", verbose=True)
     app.config.from_object("config.dev")
     app.config.from_envvar("APPLICATION_SETTINGS")
