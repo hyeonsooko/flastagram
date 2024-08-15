@@ -41,7 +41,7 @@ class PostList(Resource):
     def get(cls):
         page = request.args.get("page", type=int, default=1)
         ordered_posts = PostModel.query.order_by(PostModel.id.desc())
-        pagination = ordered_posts.paginate(page, per_page=10, error_out=False)
+        pagination = ordered_posts.paginate(page=page, per_page=10, error_out=False)
         result = post_list_schema.dump(pagination.items)
         return result
         

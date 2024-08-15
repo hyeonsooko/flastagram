@@ -1,6 +1,9 @@
 import email
 import os
 from urllib import response
+
+import sys
+sys.path.insert(0, 'C:\\code\\projects\\flastagram\\backend')
 import api
 import unittest
 from api.db import db
@@ -64,7 +67,7 @@ class PostListTestCase(CommonTestCaseSettings):
                     title=f"{i+1} post", content=f"{i+1} content", author_id = 1
                 )
             )
-        db.session.bulk_save_pbjects(dummy_posts)
+        db.session.bulk_save_objects(dummy_posts)
         db.session.commit()
         
         # req to first page of posts
