@@ -33,3 +33,8 @@ class PostModel(db.Model):
     def __repr__(self):
         return f"<Post Object: {self.title}>"
     
+    def update_to_db(self, data):
+        for key, value in data.items():
+            setattr(self, key, value)
+        db.session.commit()
+    
