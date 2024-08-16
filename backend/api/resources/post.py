@@ -1,7 +1,8 @@
 from flask_restful import Resource, request
 from api.models.post import PostModel
 from api.schemas.post import PostSchema
-from flask_jwt_extended import jwt_required
+from api.models.user import UserModel
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from marshmallow import ValidationError
 
 post_schema = PostSchema()
@@ -18,20 +19,23 @@ class Post(Resource):
     @classmethod
     @jwt_required()
     def put(cls, id):
-        post_json = request.get_json()
-        post = PostModel.find_by_id(id)
-        # if post exists, update
-        if post:
-            post.title = post_json["title"]
-            post.content = post_json["content"]
-        # if post does not exist, create new post
-        else:
-            try:
-                post = post_schema.load(post_json)
-            except ValidationError as err:
-                return err.messages, 400
         
-        post.save_to_db()
+        post_json = request.get_json()
+        
+        validate_result = post_schema.validate(post_json)
+        if validate_result:
+            return validate_result, 400
+        username = get_jwt_identity()
+        author_id = UserModel.find_by_username(username).id
+        post = PostModel.find_by_id(id)
+        
+        if not post:
+            return {"Error": "could not find the post."}, 404
+        
+        if post.author_id == author_id:
+            post.update_to_db(post_json)
+        else:
+            return {"Error": "Only author can edit the post."}, 403
         
         return post_schema.dump(post), 200
     
@@ -57,8 +61,12 @@ class PostList(Resource):
     @jwt_required()
     def post(cls):
         post_json = request.get_json()
+        username = get_jwt_identity()
+        author_id = UserModel.find_by_username(username).id
+        print(author_id)
         try:
             new_post = post_schema.load(post_json)
+            new_post.author_id = author_id
         except ValidationError as err:
             return err.messages, 400
         try:
