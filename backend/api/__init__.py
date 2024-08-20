@@ -3,7 +3,7 @@ from flask import Flask, jsonify
 from flask_restful import Api
 from dotenv import load_dotenv
 from datetime import timedelta
-
+from flask_uploads import configure_uploads
 # 추가!
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
@@ -18,6 +18,8 @@ from .models import user, post, comment
 
 from .resources.post import Post, PostList
 from .resources.user import UserRegister, UserLogin, RefreshToken
+from .resources.image import ImageUpload, Image
+from api.utils.image_upload import IMAGE_SET
 
 def create_app():
     app = Flask(__name__)
@@ -30,6 +32,8 @@ def create_app():
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=1)
     app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=30)    
     api = Api(app)
+    
+    configure_uploads(app, IMAGE_SET)
     
     # 추가!
     jwt = JWTManager(app)
@@ -57,6 +61,8 @@ def create_app():
     api.add_resource(UserRegister, "/register/")
     api.add_resource(UserLogin, "/login/")
     api.add_resource(RefreshToken, "/refresh/")
+    api.add_resource(ImageUpload, "/upload/image/")
+    api.add_resource(Image, "/statics/<path:path>")
     
     @jwt.expired_token_loader
     def expired_token_callback(jwt_header, jwt_payload):
