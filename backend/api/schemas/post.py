@@ -1,8 +1,10 @@
 from api.ma import ma, Method
 from api.models.post import PostModel
 from api.models.user import UserModel
-
+from marshmallow import Schema, fields
 class PostSchema(ma.SQLAlchemyAutoSchema):
+    
+    image = fields.String(required=True)
     
     author_name = Method("get_author_name")
     
