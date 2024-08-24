@@ -19,6 +19,7 @@ from .models import user, post, comment
 from .resources.post import Post, PostList
 from .resources.user import UserRegister, UserLogin, RefreshToken
 from .resources.image import ImageUpload, Image
+from .resources.comment import CommentDetail, CommentList
 from api.utils.image_upload import IMAGE_SET
 
 def create_app():
@@ -63,6 +64,9 @@ def create_app():
     api.add_resource(RefreshToken, "/refresh/")
     api.add_resource(ImageUpload, "/upload/image/")
     api.add_resource(Image, "/statics/<path:path>")
+    api.add_resource(CommentList, "/posts/<int:post_id>/comments/")
+    api.add_resource(CommentDetail, "/posts/<int:post_id>/comments/<int:comment_id>/")
+    
     
     @jwt.expired_token_loader
     def expired_token_callback(jwt_header, jwt_payload):

@@ -3,7 +3,7 @@ var path = require("path");
 
 var app = express();
 
-app.use(express.static(path.join(__dirname, "..")));
+app.use(express.static(path.join(__dirname)));
 
 app.listen(3000, (err) => {
     if (err) return console.log(err);
@@ -11,9 +11,9 @@ app.listen(3000, (err) => {
 });
 
 app.get("/flastagram/posts", function (req, res) {
-    res.sendFile(path.join(__dirname, "..", "post_list.html"));
+    res.sendFile(path.join(__dirname, "assets", "html", "post_list.html"));
 });
 
-app.get("flastagram/post-create", function (req, res) {
-    res.sendFile(path.join(__dirname, "..", "post_create.html"));
-});
+app.get("/flastagram/post-create", function (req, res) {
+    res.sendFile(path.join(__dirname, "assets", "html", "post_create.html"));
+});  
