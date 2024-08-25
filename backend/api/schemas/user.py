@@ -24,3 +24,13 @@ class UserRegisterSchema(ma.SQLAlchemyAutoSchema):
     def validate_password(self, data, **kwargs):
         if data["password"] != data["password_confirm"]:
             raise ValidationError("Incorrect password.", "password_confirm")
+        
+class AuthorSchema(ma.SQLAlchemyAutoSchema):
+    
+    class Meta:
+        model = UserModel
+        exclude = (
+            "password",
+            "created_at",
+            "email",
+        )
