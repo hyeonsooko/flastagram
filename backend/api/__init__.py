@@ -17,7 +17,7 @@ from .ma import ma
 from .models import user, post, comment
 
 from .resources.post import Post, PostList
-from .resources.user import UserRegister, UserLogin, RefreshToken
+from .resources.user import UserRegister, UserLogin, RefreshToken, Mypage
 from .resources.image import ImageUpload, Image
 from .resources.comment import CommentDetail, CommentList
 from api.utils.image_upload import IMAGE_SET
@@ -59,11 +59,16 @@ def create_app():
     # resources
     api.add_resource(PostList, "/posts/")
     api.add_resource(Post, "/posts/<int:id>")
+    
     api.add_resource(UserRegister, "/register/")
     api.add_resource(UserLogin, "/login/")
     api.add_resource(RefreshToken, "/refresh/")
+    
+    api.add_resource(MyPage, "/mypage/<int:id>/")
+    
     api.add_resource(ImageUpload, "/upload/image/")
     api.add_resource(Image, "/statics/<path:path>")
+    
     api.add_resource(CommentList, "/posts/<int:post_id>/comments/")
     api.add_resource(CommentDetail, "/posts/<int:post_id>/comments/<int:comment_id>/")
     
