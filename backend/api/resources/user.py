@@ -10,8 +10,10 @@ from flask_jwt_extended import (
 )
 from flask.views import MethodView
 from werkzeug.security import check_password_hash
-from api.schemas.user import UserRegisterSchema
+from api.schemas.user import UserRegisterSchema, UserSchema
+
 register_schema = UserRegisterSchema()
+user_schema = UserSchema()
 
 class UserRegister(Resource):
 
@@ -86,3 +88,39 @@ class RefreshToken(MethodView):
             token.refresh_token_value = refresh_token
             token.save_to_db()
             return {"access_token": access_token, "refresh_token": refresh_token}, 200
+        
+class MyPage(Resource):
+    
+    @classmethod
+    @jwt_required()
+    def get():
+        
+        username = get_jwt_identity()
+        user = UserModel.find_by_username(username=username)
+        if not user:
+            return {"Error": "could not find user."}, 404
+        if id == user.id:
+            return user_schema(user), 200
+        return {"Error": "Invalid."}, 403
+    
+    @classmethod
+    @jwt_required()
+    def put():
+        
+        user_json = request.get_json()
+        validate_result = user_schema.validate(user_json)
+        if validate_result:
+            return validate_result, 400
+        
+        user = UserModel.find_by_username(get_jwt_identity())
+        
+        if not user:
+            return {"Error": "could not find user."}, 404
+        request_user = UserModel.find_by_username(get_jwt_identity())
+        
+        if id == request_user.id:
+            user.update_to_db(user_json)
+            return user_schema.dump(user)
+        else:
+            return {"Error": "Invalid."}, 403
+    
