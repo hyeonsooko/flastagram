@@ -35,11 +35,11 @@ class AuthorSchema(ma.SQLAlchemyAutoSchema):
             "email",
         )
         
-class UserSchema(ma.SQLAlchemyAuthoSchema):
+class UserSchema(ma.SQLAlchemyAutoSchema):
     image = String(required=True)
     created_at = fields.DateTime(format="%Y-%m-%d")
     
     class Meta:
         model = UserModel
-        exclude = ("password")
+        exclude = ("password",)
         dump_only = ("email", "username")
