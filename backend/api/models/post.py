@@ -1,6 +1,22 @@
 from ..db import db
 from sqlalchemy.sql import func
 
+post_to_liker = db.Table(
+    "post_liker",
+    db.Column(
+        "user_id",
+        db.Integer,
+        db.ForeignKey("User.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+    db.Column(
+        "post_id",
+        db.Integer,
+        db.ForeignKey("Post.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+)
+
 class PostModel(db.Model):
     
     __tablename__ = "Post"
@@ -15,6 +31,13 @@ class PostModel(db.Model):
     comment_set = db.relationship("CommentModel", backref="post", passive_deletes=True, lazy="dynamic")
     
     image = db.Column(db.String(255))
+    
+    liker = db.relationship(
+        "UserModel",
+        secondary=post_to_liker,
+        backref=db.backref("post_liker_set", lazy="dynamic"),
+        lazy="dynamic",
+    )
     
     @classmethod
     def find_by_id(cls, id):
@@ -39,4 +62,23 @@ class PostModel(db.Model):
         for key, value in data.items():
             setattr(self, key, value)
         db.session.commit()
+        
+    def do_like(self, user):
+        if not self.is_like(user):
+            self.liker.append(user)
+            db.session.commit()
+            return self
+        
+    def cancel_like(self, user):
+        if self.is_like(user):
+            self.liker.remove(user)
+            db.session.commit()
+            return self
+        
+    def is_like(self, user):
+        return (
+            self.liker.filter(post_to_liker.c.user_id == user.id).count() > 0
+        )
     
+    def get_liker_count(self):
+        return self.liker.count()

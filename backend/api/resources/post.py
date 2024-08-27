@@ -14,8 +14,11 @@ class Post(Resource):
     def get(cls, id):
         post = PostModel.find_by_id(id)
         if post:
-            return post_schema.dump(post), 200
-        return {"Error": "could not find the post."}, 404
+            user = UserModel.find_by_username(get_jwt_identity())
+            _post_schema = PostSchema(context={"user": user})
+            return _post_schema.dump(post), 200
+        else:
+            return {"Error": "could not find the post."}, 404
     
     @classmethod
     @jwt_required()
@@ -49,14 +52,18 @@ class Post(Resource):
             return {"messages" : "Successfully deleted"}, 200
         return {"Error" : "could not find the post."}, 404
     
+    
+    
 class PostList(Resource):
     @classmethod
     @jwt_required()
     def get(cls):
+        user = UserModel.find_by_username(get_jwt_identity())
         page = request.args.get("page", type=int, default=1)
         ordered_posts = PostModel.query.order_by(PostModel.id.desc())
         pagination = ordered_posts.paginate(page=page, per_page=10, error_out=False)
-        result = post_list_schema.dump(pagination.items)
+        _post_list_schema = PostSchema(context={"user": user}, many=True)
+        result = _post_list_schema.dump(pagination.items)
         return result
         
     @classmethod

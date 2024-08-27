@@ -1,4 +1,5 @@
 from api.models.user import UserModel, RefreshTokenModel
+from api.models.post import PostModel
 from flask_restful import Resource, request
 from werkzeug.security import generate_password_hash
 from flask_jwt_extended import (
@@ -141,3 +142,30 @@ class MyPage(Resource):
             return user_schema.dump(user)
         else:
             return {"Error": "Invalid."}, 403
+        
+class PostLike(Resource):
+    
+    @classmethod
+    @jwt_required()
+    def put(cls, id):
+        
+        user = UserModel.find_by_username(get_jwt_identity())
+        post = PostModel.find_by_id(id)
+        if not user or not post:
+            return {"Error": "Invalid."}, 400
+        post.do_like(user)
+        return post.get_liker_count(), 200
+    
+    @classmethod
+    @jwt_required()
+    def delete(cls, id):
+        
+        user = UserModel.find_by_username(get_jwt_identity())
+        post = PostModel.find_by_id(id)
+        if not user or not post:
+            return {"Error": "Invalid."}, 400
+        post.cancel_like(user)
+        return post.get_liker_count(), 200
+    
+    
+    
