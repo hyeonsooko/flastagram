@@ -55,16 +55,23 @@ class Post(Resource):
     
     
 class PostList(Resource):
+    
     @classmethod
     @jwt_required()
     def get(cls):
         user = UserModel.find_by_username(get_jwt_identity())
         page = request.args.get("page", type=int, default=1)
-        ordered_posts = PostModel.query.order_by(PostModel.id.desc())
-        pagination = ordered_posts.paginate(page=page, per_page=10, error_out=False)
         _post_list_schema = PostSchema(context={"user": user}, many=True)
-        result = _post_list_schema.dump(pagination.items)
-        return result
+        
+        search_querystring = f'%%{request.args.to_dict().get("search")}%%'
+        if request.args.to_dict().get("search"):
+            ordered_posts = PostModel.filter_by_string(
+                search_querystring
+            ).order_by(PostModel.id.desc())
+            pagination = ordered_posts.paginate(
+                page=page, per_page=10, error_out=False
+                )
+        return _post_list_schema.dump(pagination.items)
         
     @classmethod
     @jwt_required()
