@@ -3,9 +3,19 @@ from ..db import db
 followers = db.Table(
         'followers',
         # 내가 팔로우하는 사람들의 id 
-        db.Column('follower_id', db.Integer, db.ForeignKey('User.id', ondelete='CASCADE'), primary_key=True),
+        db.Column(
+            'follower_id', 
+            db.Integer, 
+            db.ForeignKey('User.id', ondelete='CASCADE'), 
+            primary_key=True
+            ),
         # 내가 팔로우한 사람들의 id
-        db.Column('followed_id', db.Integer, db.ForeignKey('User.id', ondelete='CASCADE'), primary_key=True)
+        db.Column(
+            'followed_id', 
+            db.Integer, 
+            db.ForeignKey('User.id', ondelete='CASCADE'), 
+            primary_key=True
+            )
     )
 
 class UserModel(db.Model):
@@ -32,11 +42,13 @@ class UserModel(db.Model):
     def follow(self, user):
         if not self.is_following(user):
             self.followed.append(user)
+            db.session.commit()
             return self
     
     def unfollow(self, user):
         if self.is_following(user):
             self.followed.remove(user)
+            db.session.commit()
             return self
         
     def is_following(self, user):
@@ -95,3 +107,4 @@ class RefreshTokenModel(db.Model):
             return None
         user = UserModel.find_by_id(id=user_id)
         return user
+    
