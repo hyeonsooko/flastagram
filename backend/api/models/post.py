@@ -1,5 +1,6 @@
 from ..db import db
 from sqlalchemy.sql import func
+from sqlalchemy import or_
 
 post_to_liker = db.Table(
     "post_liker",
@@ -27,7 +28,7 @@ class PostModel(db.Model):
     created_at = db.Column(db.DateTime(timezone=True), default=func.now())
     updated_at = db.Column(db.DateTime(timezone=True), default=func.now(), onupdate=func.now())
     author_id = db.Column(db.Integer, db.ForeignKey("User.id", ondelete="CASCADE"), nullable=False)
-    author = db.relationship("UserModel", backref="post_author")
+    author = db.relationship("UserModel", backref="post_set")
     comment_set = db.relationship("CommentModel", backref="post", passive_deletes=True, lazy="dynamic")
     
     image = db.Column(db.String(255))
@@ -82,3 +83,13 @@ class PostModel(db.Model):
     
     def get_liker_count(self):
         return self.liker.count()
+    
+    @classmethod
+    def filter_by_followed(cls, followed_users):
+        from api.models.user import UserModel
+        
+        if followed_users:
+            return cls.query.filter(
+                or_(cls.author == user for user in followed_users)
+            ).order_by(PostModel.id.dsec())
+        return UserModel.query.filter(False)

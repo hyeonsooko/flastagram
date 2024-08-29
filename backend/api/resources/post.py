@@ -63,14 +63,18 @@ class PostList(Resource):
         page = request.args.get("page", type=int, default=1)
         _post_list_schema = PostSchema(context={"user": user}, many=True)
         
+        followed = user.followed.all()
+        
+        ordered_posts = PostModel.filter_by_followed(followed_users=followed)
+        
         search_querystring = f'%%{request.args.to_dict().get("search")}%%'
         if request.args.to_dict().get("search"):
             ordered_posts = PostModel.filter_by_string(
                 search_querystring
             ).order_by(PostModel.id.desc())
-            pagination = ordered_posts.paginate(
-                page=page, per_page=10, error_out=False
-                )
+        pagination = ordered_posts.paginate(
+            page=page, per_page=10, error_out=False
+        )
         return _post_list_schema.dump(pagination.items)
         
     @classmethod
