@@ -167,5 +167,29 @@ class PostLike(Resource):
         post.cancel_like(user)
         return post.get_liker_count(), 200
     
+class Follow(Resource):
     
+    @classmethod
+    @jwt_required()
+    def put(cls, id):
+        request_user = UserModel.find_by_username(get_jwt_identity())
+        user_to_follow = UserModel.find_by_id(id)
+        if not request_user:
+            return {"error": "User not found."}, 400
+        if id == get_jwt().get("user_id"):
+            return {"error": "Cannot follow yourself."}, 400
+        request_user.follow(user_to_follow)
+        return "", 204
+    
+    @classmethod
+    @jwt_required()
+    def delete(cls, id):
+        request_user = UserModel.find_by_username(get_jwt_identity())
+        user_to_follow = UserModel.find_by_id(id)
+        if not request_user:
+            return {"error": "User not found."}, 400
+        if id == get_jwt().get("user_id"):
+            return {"error": "Cannot follow yourself."}, 400
+        request_user.unfollow(user_to_follow)
+        return "", 204
     
