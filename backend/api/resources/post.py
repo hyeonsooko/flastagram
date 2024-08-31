@@ -65,7 +65,7 @@ class PostList(Resource):
         
         followed = user.followed.all()
         
-        ordered_posts = PostModel.filter_by_followed(followed_users=followed)
+        ordered_posts = PostModel.filter_by_followed(followed_users=followed, request_user=user)
         
         search_querystring = f'%%{request.args.to_dict().get("search")}%%'
         if request.args.to_dict().get("search"):

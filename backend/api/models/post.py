@@ -85,11 +85,8 @@ class PostModel(db.Model):
         return self.liker.count()
     
     @classmethod
-    def filter_by_followed(cls, followed_users):
-        from api.models.user import UserModel
+    def filter_by_followed(cls, followed_users, request_user):
         
-        if followed_users:
-            return cls.query.filter(
-                or_(cls.author == user for user in followed_users)
-            ).order_by(PostModel.id.dsec())
-        return UserModel.query.filter(False)
+        return cls.query.filter(
+            or_(cls.author == user for user in followed_users + [request_user])
+        ).order_by(PostModel.id.dsec())
