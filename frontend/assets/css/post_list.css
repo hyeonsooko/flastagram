@@ -337,6 +337,11 @@ body {
   font-size: 12px;
 }
 
+.action-btn:hover{
+  color: blue;
+  cursor: pointer;
+}
+
 .suggestion-text{
   font-size: 14px;
   color: rgba(0,0,0,0.5);

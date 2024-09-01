@@ -17,7 +17,7 @@ from .ma import ma
 from .models import user, post, comment
 
 from .resources.post import Post, PostList
-from .resources.user import UserRegister, UserLogin, RefreshToken, MyPage, PostLike, Follow
+from .resources.user import UserRegister, UserLogin, RefreshToken, MyPage, PostLike, Follow, Recommend
 from .resources.image import ImageUpload, Image
 from .resources.comment import CommentDetail, CommentList
 from api.utils.image_upload import IMAGE_SET
@@ -66,6 +66,7 @@ def create_app():
     api.add_resource(RefreshToken, "/refresh/")
     
     api.add_resource(Follow, "/user/<int:id>/followers/")
+    api.add_resource(Recommend, "/users/recommend-followers/")
     
     api.add_resource(MyPage, "/mypage/<int:id>/")
     
