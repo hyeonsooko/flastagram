@@ -12,9 +12,11 @@ from flask_jwt_extended import (
 from flask.views import MethodView
 from werkzeug.security import check_password_hash
 from api.schemas.user import UserRegisterSchema, UserSchema
+import random
 
 register_schema = UserRegisterSchema()
 user_schema = UserSchema()
+user_list_schema = UserSchema(many=True, exclude=["email", "created_at"])
 
 class UserRegister(Resource):
 
@@ -193,3 +195,19 @@ class Follow(Resource):
         request_user.unfollow(user_to_follow)
         return "", 204
     
+class Recommend(Resource):
+    
+    @classmethod
+    @jwt_required()
+    def get(cls):
+        request_user = UserModel.find_by_username(get_jwt_identity())
+        return user_list_schema.dump(
+            random.sample(
+                list(
+                    set(UserModel.query.all())
+                    - set([request_user])
+                    - set(request_user.followed.all())
+                ),
+                2,
+            )
+        )

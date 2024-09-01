@@ -252,9 +252,41 @@ function toggleLikeButton(likeButton) {
   }
 }
 
+/**
+ * 사용자 추천 API 를 사용해서 랜덤한 사용자 2명의 정보를 불러옵니다.
+ */
+async function getRecommendData(id) {
+  let myHeaders = new Headers();
+  myHeaders.append("Authorization", `Bearer ${ACCESS_TOKEN}`);
+  myHeaders.append("Content-Type", "application/json");
+
+  let requestOptions = {
+    method: "GET",
+    headers: myHeaders,
+  };
+
+  return await (await fetch(RECOMMEND_API_URL, requestOptions)).json();
+}
+
+/**
+ * 사용자 추천 API로부터 받아온 데이터로 화면을 그립니다.
+ */
+async function loadRecommend() {
+  recommendElement = document.getElementsByClassName("recommend");
+  let recommendData = await getRecommendData();
+  for (let i = 0; i <= 1; i++) {
+    console.log(recommendElement[i].children[0].children[0].src);
+    recommendElement[i].children[0].children[0].src =
+      STATIC_FILES_API_URL + recommendData[i]["image"];
+    recommendElement[i].children[1].children[0].innerText =
+      recommendData[i]["username"];
+  }
+}
+
 function main() {
   executeInfiniteScroll(); // 스크롤을 내릴 때마다 게시물을 로드 (무한스크롤)
   loadProfileImage(); // 네비게이션 바에 프로필 사진을 뿌려줍니다.
+  loadRecommend(); // 추천정보
 }
 
 main();
