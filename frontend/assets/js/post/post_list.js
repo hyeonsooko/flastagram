@@ -275,11 +275,47 @@ async function loadRecommend() {
   recommendElement = document.getElementsByClassName("recommend");
   let recommendData = await getRecommendData();
   for (let i = 0; i <= 1; i++) {
-    console.log(recommendElement[i].children[0].children[0].src);
+    recommendElement[i].children[2].id = recommendData[i]["id"];
     recommendElement[i].children[0].children[0].src =
       STATIC_FILES_API_URL + recommendData[i]["image"];
     recommendElement[i].children[1].children[0].innerText =
       recommendData[i]["username"];
+  }
+}
+
+/**
+ * 팔로우 & 언팔로우를 처리합니다.
+ */
+function toggleFollowButton(followButton) {
+  let id = followButton.id;
+  if (followButton.innerHTML === "Follow") {
+    // 팔로우 요청 보내기
+    let myHeaders = new Headers();
+    myHeaders.append("Authorization", `Bearer ${ACCESS_TOKEN}`);
+    myHeaders.append("Content-Type", "application/json");
+    var requestOptions = {
+      method: "PUT",
+      headers: myHeaders,
+      redirect: "follow",
+    };
+    fetch(FOLLOW_API_URL(id), requestOptions)
+      .then((response) => response.status)
+      .catch((error) => console.log("error", error));
+    followButton.innerHTML = "Unfollow";
+    // 언팔로우 요청 보내기
+  } else {
+    let myHeaders = new Headers();
+    myHeaders.append("Authorization", `Bearer ${ACCESS_TOKEN}`);
+    myHeaders.append("Content-Type", "application/json");
+    var requestOptions = {
+      method: "DELETE",
+      headers: myHeaders,
+      redirect: "follow",
+    };
+    fetch(FOLLOW_API_URL(id), requestOptions)
+      .then((response) => response.status)
+      .catch((error) => console.log("error", error));
+    followButton.innerHTML = "Follow";
   }
 }
 

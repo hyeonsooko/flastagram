@@ -26,3 +26,7 @@ const PROFILE_FORM_FRONTEND_URL =
 const POST_LIST_FRONTEND_URL = FRONTEND_SERVER_BASE_URL + "/flastagram/posts";
 const POST_CREATE_FRONTEND_URL =
   FRONTEND_SERVER_BASE_URL + "/flastagram/post-create";
+
+const FOLLOW_API_URL = (id) => {
+  return API_SERVER_BASE_URL + `/user/${id}/followers/`;
+}
