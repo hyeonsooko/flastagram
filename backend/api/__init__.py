@@ -3,7 +3,7 @@ from flask import Flask, jsonify
 from flask_restful import Api
 from dotenv import load_dotenv
 from datetime import timedelta
-from flask_uploads import configure_uploads
+from utils.flask_uploads import configure_uploads, patch_request_class
 # 추가!
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
