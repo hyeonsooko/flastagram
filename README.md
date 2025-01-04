@@ -1,6 +1,6 @@
 # Flastagram
 
-Flastagram is a social media application inspired by BeReal. This platform is designed exclusively for college events organized by your organization, enabling users to share their moments in a community-focused environment.
+Flastagram is a social media application inspired by Instagram.
 
 ## Features
 
