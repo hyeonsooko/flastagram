@@ -94,3 +94,32 @@ class PostList(Resource):
         except:
             return {"Error": "Failed to save"}, 500
         return post_schema.dump(new_post), 201
+    
+class PostLike(Resource):
+    @classmethod
+    @jwt_required()
+    def put(cls, id):
+        """
+        id 로 특정되는 게시물에 좋아요를 누릅니다.
+        """
+        # 사용자, 게시물을 특정
+        user = UserModel.find_by_username(get_jwt_identity())
+        post = PostModel.find_by_id(id)
+        if not user or not post:
+            return {"Error": "잘못된 요청입니다."}, 400
+        post.do_like(user)
+        return "", 204
+
+    @classmethod
+    @jwt_required()
+    def delete(cls, id):
+        """
+        id 로 특정되는 게시물에 좋아요를 취소합니다.
+        """
+        # 사용자, 게시물을 특정
+        user = UserModel.find_by_username(get_jwt_identity())
+        post = PostModel.find_by_id(id)
+        if not user or not post:
+            return {"Error": "잘못된 요청입니다."}, 400
+        post.cancel_like(user)
+        return "", 204
